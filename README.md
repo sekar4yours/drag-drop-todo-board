@@ -1,12 +1,12 @@
 
 # Task Manager Application
 
-A full-stack task management application with a React frontend and Node.js/Express backend with MySQL database.
+A full-stack task management application with a React frontend and PHP backend with MySQL database.
 
 ## Project Structure
 
 - `/src` - React frontend code
-- `/api` - Node.js/Express backend API
+- `/api` - PHP backend API
 - `/mysql` - MySQL initialization scripts
 
 ## Setup and Running
@@ -27,8 +27,7 @@ docker-compose up -d
 ```
 
 This will start:
-- The React frontend (if added to Docker)
-- The Node.js/Express API on port 5000
+- The PHP/Apache API on port 5000
 - MySQL database on port 3306
 
 ### API Endpoints
@@ -45,11 +44,10 @@ For local development:
 
 1. Install dependencies:
 ```bash
-cd api
 npm install
 ```
 
-2. Run the API in development mode:
+2. Run the frontend in development mode:
 ```bash
 npm run dev
 ```
