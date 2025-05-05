@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/select';
 import { Task, TaskPriority, TaskStatus } from '../types/task';
 import { useTaskContext } from '../context/TaskContext';
-import { Plus } from 'lucide-react';
+import { Loader2, Plus } from 'lucide-react';
 
 export const AddTaskDialog: React.FC = () => {
   const { addTask } = useTaskContext();
@@ -28,23 +28,31 @@ export const AddTaskDialog: React.FC = () => {
   const [description, setDescription] = useState('');
   const [status, setStatus] = useState<TaskStatus>('todo');
   const [priority, setPriority] = useState<TaskPriority>('medium');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
     
-    addTask({
-      title,
-      description,
-      status,
-      priority,
-    });
-    
-    // Reset form
-    setTitle('');
-    setDescription('');
-    setStatus('todo');
-    setPriority('medium');
-    setOpen(false);
+    try {
+      await addTask({
+        title,
+        description,
+        status,
+        priority,
+      });
+      
+      // Reset form
+      setTitle('');
+      setDescription('');
+      setStatus('todo');
+      setPriority('medium');
+      setOpen(false);
+    } catch (error) {
+      console.error('Error adding task:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -128,10 +136,20 @@ export const AddTaskDialog: React.FC = () => {
               type="button"
               variant="outline"
               onClick={() => setOpen(false)}
+              disabled={isSubmitting}
             >
               Cancel
             </Button>
-            <Button type="submit">Create Task</Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Creating...
+                </>
+              ) : (
+                'Create Task'
+              )}
+            </Button>
           </div>
         </form>
       </DialogContent>

@@ -4,9 +4,10 @@ import { TaskColumn } from './TaskColumn';
 import { AddTaskDialog } from './AddTaskDialog';
 import { useTaskContext } from '../context/TaskContext';
 import { TaskStatus } from '../types/task';
+import { Loader2 } from 'lucide-react';
 
 export const TaskBoard: React.FC = () => {
-  const { tasks, moveTask } = useTaskContext();
+  const { tasks, isLoading, moveTask } = useTaskContext();
   const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null);
 
   const handleDragStart = (e: React.DragEvent, taskId: string) => {
@@ -34,6 +35,15 @@ export const TaskBoard: React.FC = () => {
   const todoTasks = tasks.filter((task) => task.status === 'todo');
   const inProgressTasks = tasks.filter((task) => task.status === 'in-progress');
   const completedTasks = tasks.filter((task) => task.status === 'completed');
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <span className="ml-2 text-lg">Loading tasks...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto py-8">

@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Edit, Trash2 } from 'lucide-react';
+import { Edit, Trash2, Loader2 } from 'lucide-react';
 
 interface TaskCardProps {
   task: Task;
@@ -19,14 +19,35 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onDragStart }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(task.title);
   const [editedDescription, setEditedDescription] = useState(task.description);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  const handleEditSubmit = (e: React.FormEvent) => {
+  const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    updateTask(task.id, {
-      title: editedTitle,
-      description: editedDescription,
-    });
-    setIsEditing(false);
+    setIsLoading(true);
+    
+    try {
+      await updateTask(task.id, {
+        title: editedTitle,
+        description: editedDescription,
+      });
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Error updating task:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteTask = async () => {
+    setIsDeleting(true);
+    try {
+      await deleteTask(task.id);
+    } catch (error) {
+      console.error('Error deleting task:', error);
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   const formatDate = (date: Date) => {
@@ -38,7 +59,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onDragStart }) => {
 
   return (
     <Card
-      className="task-card"
+      className="task-card p-4"
       draggable
       onDragStart={(e) => onDragStart(e, task.id)}
     >
@@ -79,10 +100,20 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onDragStart }) => {
                     type="button"
                     variant="outline"
                     onClick={() => setIsEditing(false)}
+                    disabled={isLoading}
                   >
                     Cancel
                   </Button>
-                  <Button type="submit">Save Changes</Button>
+                  <Button type="submit" disabled={isLoading}>
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      'Save Changes'
+                    )}
+                  </Button>
                 </div>
               </form>
             </DialogContent>
@@ -91,9 +122,14 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onDragStart }) => {
             variant="ghost"
             size="sm"
             className="h-8 w-8 p-0"
-            onClick={() => deleteTask(task.id)}
+            onClick={handleDeleteTask}
+            disabled={isDeleting}
           >
-            <Trash2 className="h-4 w-4" />
+            {isDeleting ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Trash2 className="h-4 w-4" />
+            )}
           </Button>
         </div>
       </div>
